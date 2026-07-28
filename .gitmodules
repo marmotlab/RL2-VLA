@@ -1,0 +1,6 @@
+[submodule "third_party/SAFE"]
+	path = third_party/SAFE
+	url = https://github.com/rl2-vla/SAFE.git
+[submodule "third_party/qam"]
+	path = third_party/qam
+	url = https://github.com/rl2-vla/qam.git
