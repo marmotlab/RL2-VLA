@@ -40,7 +40,7 @@
 Clone the repository and submodules (i.e. `SAFE`, `QAM`) using the following:
 
 ```bash
-git clone --recurse-submodules https://github.com/rl2-vla/RL2-VLA.git
+git clone --recurse-submodules https://github.com/marmotlab/RL2-VLA.git
 cd RL2-VLA/
 ```
 
