@@ -83,7 +83,7 @@ for seed in "${SEEDS[@]}"; do
     # # Vanilla
     # # ==========================================================================
     # for task_suite in "${TASK_SUITES[@]}"; do
-    #     CUDA_VISIBLE_DEVICES=$GPU xvfb-run --auto-servernum -s "-screen 0 640x480x24" python ../run_simpler_eval_with_openpi.py \
+    #     CUDA_VISIBLE_DEVICES=$GPU python ../run_simpler_eval_with_openpi.py \
     #         --task_suite_name "$task_suite" \
     #         --lang_transform_type rephrase \
     #         --pretrained_checkpoint "$PRETRAINED_CHECKPOINT" \
