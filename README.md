@@ -203,9 +203,9 @@ We would like to thank the authors for their great work. Please refer to their p
 If you intend to use our work in your research, please cite the following publication:
 ```bibtex
 @article{tan2026rl2,
-  title={$RL^2{-}VLA$: Adaptive RL Latent Compositional Steering with Test-Time Scaling for Vision-Language-Action Models}, 
-  author={Tan, Derek Ming Siang and Shailesh, Shailesh and Iyer, Srikrishna and Teo, Wei Jie William and Ju, Yuanliang and Gu, Qiao and Sartoretti, Guillaume Adrien},
-  journal = {arXiv preprint},
-  year={2026}
+  title={RL$^2$-VLA: Adaptive RL Latent Compositional Steering with Test-Time Scaling for Vision-Language-Action Models}, 
+  author={Derek Ming Siang Tan and Shailesh Shailesh and Srikrishna Iyer and William Wei Jie Teo and Yuanliang Ju and Qiao Gu and Guillaume Sartoretti},
+  year={2026},
+  journal={arXiv preprint arXiv:2607.26991}, 
 }
 ```
