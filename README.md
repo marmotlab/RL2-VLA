@@ -1,10 +1,12 @@
 <h2 align="center">RL²-VLA: Adaptive RL Latent Compositional Steering with Test-Time Scaling for Vision-Language-Action Models</h2>
 <p align="center">
-  <a href="https://rl2-vla.github.io"><img src="https://img.shields.io/badge/Website-Visit-0066FF?style=for-the-badge&logo=google-chrome" alt="Website"/></a>
+  <a href="https://rl2-vla.github.io"><img src="https://img.shields.io/badge/Visit-Website-0066FF?style=for-the-badge&logo=google-chrome" alt="Website"/></a>
   &emsp;&emsp;
-  <a href="https://arxiv.org/abs/TODO"><img src="https://img.shields.io/badge/arXiv-Paper-df2a2a?style=for-the-badge" alt="arXiv"/></a>
+  <a href="https://arxiv.org/pdf/2607.26991"><img src="https://img.shields.io/badge/arXiv-Paper-df2a2a?style=for-the-badge&logo=arxiv&logoColor=white" alt="arXiv"/></a>
   &emsp;&emsp;
-  <a href="https://huggingface.co/TODO"><img src="https://img.shields.io/badge/%F0%9F%A4%97-Models-FFD700?style=for-the-badge" alt="Models"/></a>
+  <a href="https://huggingface.co/rl2-vla"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF-Models-FFD700?style=for-the-badge" alt="Models"/></a>
+  &emsp;&emsp;
+  <a href="https://www.youtube.com/watch?v=0qdPVgib6vI"><img src="https://img.shields.io/badge/Project-Video-2E8B57?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube"/></a>
 </p>
 
 <div align="center">
