@@ -110,9 +110,9 @@ class GenerateConfig:
 
     # Samples before/after failure detection
     action_samples_prefail: int = 1
-    augmented_samples_prefail: int = 0
+    composed_samples_prefail: int = 0
     action_samples: int = 1
-    augmented_samples: int = 0
+    composed_samples: int = 0
     warmup: bool = True                 # Pass in a MAX of pre/post-fail batch size at step 0 to avoid OOM Crash
 
     # QAM Params
@@ -151,9 +151,9 @@ def eval_simpler(cfg: GenerateConfig) -> None:
 
     # Initialize logging
     if cfg.use_failure_prediction:
-        run_id = f"[{cfg.wandb_project}]-SEED-{cfg.seed}_{cfg.task_suite_name}-batch-{cfg.lang_rephrase_num_prefail}-{cfg.action_samples_prefail}-{cfg.augmented_samples_prefail}_{cfg.lang_rephrase_num}-{cfg.action_samples}-{cfg.augmented_samples}-alpha-[{cfg.failure_cp_alpha}]-{DATE_TIME}"
+        run_id = f"[{cfg.wandb_project}]-SEED-{cfg.seed}_{cfg.task_suite_name}-batch-{cfg.lang_rephrase_num_prefail}-{cfg.action_samples_prefail}-{cfg.composed_samples_prefail}_{cfg.lang_rephrase_num}-{cfg.action_samples}-{cfg.composed_samples}-alpha-[{cfg.failure_cp_alpha}]-{DATE_TIME}"
     else:
-        run_id = f"[{cfg.wandb_project}]-SEED-{cfg.seed}_{cfg.task_suite_name}-batch-{cfg.lang_rephrase_num_prefail}-{cfg.action_samples_prefail}-{cfg.augmented_samples_prefail}-{DATE_TIME}"
+        run_id = f"[{cfg.wandb_project}]-SEED-{cfg.seed}_{cfg.task_suite_name}-batch-{cfg.lang_rephrase_num_prefail}-{cfg.action_samples_prefail}-{cfg.composed_samples_prefail}-{DATE_TIME}"
     
     logs_dir = os.path.join(cfg.local_log_dir, "logs")
     os.makedirs(logs_dir, exist_ok=True)
@@ -201,7 +201,7 @@ def eval_simpler(cfg: GenerateConfig) -> None:
     print(f"PI0Policy device: {pi0_policy.config.device}")
     
     # Initialize verifier model
-    if cfg.use_verifier or cfg.augmented_samples_prefail > 0 or cfg.augmented_samples > 0:
+    if cfg.use_verifier or cfg.composed_samples_prefail > 0 or cfg.composed_samples > 0:
         print("Loading ensemble model for similarity scoring...")
         # Use dynamic path relative to the VLA-CLIP root
         vla_clip_root = Path(__file__).resolve().parents[2]
@@ -246,7 +246,7 @@ def eval_simpler(cfg: GenerateConfig) -> None:
         print("curr_task", curr_task)
         
         # Load QAM model if enabled
-        if cfg.augmented_samples > 0 or cfg.augmented_samples_prefail > 0:
+        if cfg.composed_samples > 0 or cfg.composed_samples_prefail > 0:
             print(f"Loading QAM checkpoint from {cfg.qam_ckpt}")
             qam = QAMInference(checkpoint_path = cfg.qam_ckpt)
             print("QAM checkpoint loaded successfully")
@@ -337,8 +337,8 @@ def eval_simpler(cfg: GenerateConfig) -> None:
 
                 # PREFAIL init (i.e. before failure detection)
                 action_samples = cfg.action_samples_prefail
-                augmented_samples = cfg.augmented_samples_prefail
-                policy_batch_inference_size = (action_samples) if augmented_samples <= 0 else augmented_samples
+                composed_samples = cfg.composed_samples_prefail
+                policy_batch_inference_size = (action_samples) if composed_samples <= 0 else composed_samples
                 lang_rephrase_num = cfg.lang_rephrase_num_prefail
 
                 # Get raw image from environment
@@ -442,21 +442,21 @@ def eval_simpler(cfg: GenerateConfig) -> None:
                         # If not failure, stick to prefail config
                         if is_failure:
                             action_samples = cfg.action_samples
-                            augmented_samples = cfg.augmented_samples
-                            policy_batch_inference_size = (action_samples) if augmented_samples <= 0 else augmented_samples
+                            composed_samples = cfg.composed_samples
+                            policy_batch_inference_size = (action_samples) if composed_samples <= 0 else composed_samples
                             lang_rephrase_num = cfg.lang_rephrase_num
 
                             # Create batch of language instructions
                             batch_size = policy_batch_inference_size * lang_rephrase_num
 
                             # Truncate extra actions from queue
-                            if cfg.action_samples_prefail > cfg.action_samples and cfg.lang_rephrase_num < cfg.lang_rephrase_num_prefail and augmented_samples <= 0:
+                            if cfg.action_samples_prefail > cfg.action_samples and cfg.lang_rephrase_num < cfg.lang_rephrase_num_prefail and composed_samples <= 0:
                                 action_queue = list(action_queue)
                                 action_queue = [action_queue[i*cfg.action_samples_prefail + j] for i in range(lang_rephrase_num) for j in range(action_samples)]
                                 action_queue = deque(action_queue)
-                            
+
                             # Resample if necessary
-                            elif augmented_samples <= 0:
+                            elif composed_samples <= 0:
                                 # Build unique instruction list
                                 if rephrased_list is not None and lang_rephrase_num > 1:
                                     unique_prompts = [task_description] + rephrased_list[:lang_rephrase_num - 1]
@@ -495,17 +495,17 @@ def eval_simpler(cfg: GenerateConfig) -> None:
                     # =====================================================================================
                     # Compositional Action Steering
                     # =====================================================================================
-                    augmented_actions = None
-                    augmented_actions_queue = None
+                    composed_actions = None
+                    composed_actions_queue = None
                     w = None
 
-                    if augmented_samples > 0:
-                        augmented_actions, augmented_actions_queue, w = compute_composed_actions(
+                    if composed_samples > 0:
+                        composed_actions, composed_actions_queue, w = compute_composed_actions(
                             cfg=cfg,
                             task_description=task_description,
                             rephrased_list=rephrased_list,
                             lang_rephrase_num=lang_rephrase_num,
-                            augmented_samples=augmented_samples,
+                            composed_samples=composed_samples,
                             processed_obs=processed_obs,
                             image_key=image_key,
                             pi0_policy=pi0_policy,
@@ -516,11 +516,11 @@ def eval_simpler(cfg: GenerateConfig) -> None:
                 # =========================================================================================
                 # Verifier-Based Action Selection
                 # =========================================================================================
-                if (cfg.use_verifier or augmented_actions_queue is not None) and t % cfg.n_action_steps == 0:
-                    if augmented_actions_queue is not None:
-                        assert len(augmented_actions_queue) == cfg.n_action_steps, \
-                            f"Augmented action queue length should be {cfg.n_action_steps}, but got {len(augmented_actions_queue)}"
-                        action_queue = augmented_actions_queue
+                if (cfg.use_verifier or composed_actions_queue is not None) and t % cfg.n_action_steps == 0:
+                    if composed_actions_queue is not None:
+                        assert len(composed_actions_queue) == cfg.n_action_steps, \
+                            f"Composed action queue length should be {cfg.n_action_steps}, but got {len(composed_actions_queue)}"
+                        action_queue = composed_actions_queue
                     assert len(action_queue) == cfg.n_action_steps, \
                         f"Action queue length should be {cfg.n_action_steps}, but got {len(action_queue)}"
                     
@@ -648,7 +648,7 @@ def eval_simpler(cfg: GenerateConfig) -> None:
                         num_steps_wait=cfg.num_steps_wait,
                         predefined_action_queue=predefined_action_queue,
                         global_action_idx=global_action_idx,
-                        augmented_actions_queue=augmented_actions_queue,
+                        composed_actions_queue=composed_actions_queue,
                         w=w,
                         task_description=task_description,
                         raw_img=raw_img,

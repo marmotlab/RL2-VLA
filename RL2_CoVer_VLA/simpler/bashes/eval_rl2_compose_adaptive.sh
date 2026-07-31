@@ -14,12 +14,12 @@ NUM_TRIALS_PER_TASK=50
 # Action sampling for non-failure states
 LANG_REPHRASE_NUM_PREFAIL=8
 ACTION_SAMPLES_PREFAIL=5
-AUGMENTED_SAMPLES_PREFAIL=0
+COMPOSED_SAMPLES_PREFAIL=0
 
 # Action sampling for failure states
 LANG_REPHRASE_NUM=8
 ACTION_SAMPLES=1
-AUGMENTED_SAMPLES=5
+COMPOSED_SAMPLES=5
 
 # Log Directory
 LOCAL_LOG_DIR="./experiments"
@@ -117,10 +117,10 @@ for task_suite in "${TASK_SUITES[@]}"; do
                 --failure_checkpoint_dir "$FAILURE_CHECKPOINT_DIR" \
                 --lang_rephrase_num_prefail "$LANG_REPHRASE_NUM_PREFAIL" \
                 --action_samples_prefail "$ACTION_SAMPLES_PREFAIL" \
-                --augmented_samples_prefail "$AUGMENTED_SAMPLES_PREFAIL" \
+                --composed_samples_prefail "$COMPOSED_SAMPLES_PREFAIL" \
                 --lang_rephrase_num "$LANG_REPHRASE_NUM" \
                 --action_samples "$ACTION_SAMPLES" \
-                --augmented_samples "$AUGMENTED_SAMPLES" \
+                --composed_samples "$COMPOSED_SAMPLES" \
                 --use_verifier True \
                 --qam_ckpt "$QAM_CKPT" \
                 --critic cover \

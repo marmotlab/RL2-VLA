@@ -13,7 +13,7 @@ NUM_TRIALS_PER_TASK=50
 # Action sampling for all states
 LANG_REPHRASE_NUM_PREFAIL=8
 ACTION_SAMPLES_PREFAIL=1
-AUGMENTED_SAMPLES_PREFAIL=5
+COMPOSED_SAMPLES_PREFAIL=5
 
 # Log Directory
 LOCAL_LOG_DIR="./experiments"
@@ -73,7 +73,7 @@ for seed in "${SEEDS[@]}"; do
             --use_failure_prediction False \
             --lang_rephrase_num_prefail "$LANG_REPHRASE_NUM_PREFAIL" \
             --action_samples_prefail "$ACTION_SAMPLES_PREFAIL" \
-            --augmented_samples_prefail "$AUGMENTED_SAMPLES_PREFAIL" \
+            --composed_samples_prefail "$COMPOSED_SAMPLES_PREFAIL" \
             --use_verifier True \
             --qam_ckpt "$QAM_CKPT" \
             --critic cover \

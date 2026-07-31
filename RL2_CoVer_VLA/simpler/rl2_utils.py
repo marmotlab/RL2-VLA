@@ -182,7 +182,7 @@ def load_failure_detection_model(cfg, curr_task):
     return failure_model, cp_band
 
 def run_policy_warmup(cfg, task_description, rephrased_list, processed_obs, image_key, pi0_policy, action_noise_std):
-    dummy_policy_batch_inference_size = max(cfg.action_samples_prefail, cfg.augmented_samples_prefail, cfg.action_samples, cfg.augmented_samples)
+    dummy_policy_batch_inference_size = max(cfg.action_samples_prefail, cfg.composed_samples_prefail, cfg.action_samples, cfg.composed_samples)
     dummy_batch_size = dummy_policy_batch_inference_size * max(cfg.lang_rephrase_num, cfg.lang_rephrase_num_prefail)
 
     # Build unique prompts for warmup (postfail uses rephrased prompts regardless of use_failure_prediction)
@@ -267,22 +267,22 @@ def get_composed_actions(pi0_policy, qam, processed_obs, image_key, task_list, b
             time += dt
             qam_t += 1
 
-    augmented_actions = noisy_action_torch[:, :pi0_policy.config.n_action_steps]
+    composed_actions = noisy_action_torch[:, :pi0_policy.config.n_action_steps]
 
-    # Unpad augmented_actions
+    # Unpad composed_actions
     original_action_dim = pi0_policy.config.action_feature.shape[0]
-    augmented_actions = augmented_actions[:, :, :original_action_dim]
-    augmented_actions = pi0_policy.unnormalize_outputs({"action": augmented_actions})["action"]
+    composed_actions = composed_actions[:, :, :original_action_dim]
+    composed_actions = pi0_policy.unnormalize_outputs({"action": composed_actions})["action"]
 
-    return augmented_actions
+    return composed_actions
 
-def compute_composed_actions(cfg, task_description, rephrased_list, lang_rephrase_num, augmented_samples,
+def compute_composed_actions(cfg, task_description, rephrased_list, lang_rephrase_num, composed_samples,
                               processed_obs, image_key, pi0_policy, qam, action_noise_std):
     """Run compositional (QAM-weighted) action denoising for one action-selection step.
 
     Returns:
-        augmented_actions: (B, n_action_steps, action_dim) denoised actions
-        augmented_actions_queue: deque of per-timestep actions, maxlen=cfg.n_action_steps
+        composed_actions: (B, n_action_steps, action_dim) denoised actions
+        composed_actions_queue: deque of per-timestep actions, maxlen=cfg.n_action_steps
         w: resolved compositional weight array, shape (B, 1, 1)
     """
     w = cfg.merge_rel_weight
@@ -290,9 +290,9 @@ def compute_composed_actions(cfg, task_description, rephrased_list, lang_rephras
     # ########################################################################
     # VLA sampling
     # ########################################################################
-    policy_batch_inference_size = augmented_samples
+    policy_batch_inference_size = composed_samples
     batch_size = policy_batch_inference_size * lang_rephrase_num
-    augmented_actions_queue = deque([], maxlen=cfg.n_action_steps)
+    composed_actions_queue = deque([], maxlen=cfg.n_action_steps)
 
     # Set weights for compositional denoising
     # NOTE: If w == -1.0, sample from normal distribution
@@ -344,7 +344,7 @@ def compute_composed_actions(cfg, task_description, rephrased_list, lang_rephras
 
             hidden_states_np = hidden_states_last_token.detach().cpu().to(torch.float32).numpy()
 
-            # B = len(unique_prompts) but we need B = len(unique_prompts) * augmented_samples
+            # B = len(unique_prompts) but we need B = len(unique_prompts) * composed_samples
             rephrased_hidden_states_np = []
             for i in range(len(unique_prompts)):
                 rephrased_hidden_states_np.extend([hidden_states_np[i]] * policy_batch_inference_size)
@@ -358,11 +358,11 @@ def compute_composed_actions(cfg, task_description, rephrased_list, lang_rephras
 
     assert len(task_list) == batch_size, "Batch size mismatch"
 
-    augmented_actions = get_composed_actions(pi0_policy, qam, processed_obs, image_key, task_list, batch_size, hidden_states_np, w, action_noise_std)
+    composed_actions = get_composed_actions(pi0_policy, qam, processed_obs, image_key, task_list, batch_size, hidden_states_np, w, action_noise_std)
 
-    augmented_actions_queue.extend(augmented_actions.transpose(0, 1))
+    composed_actions_queue.extend(composed_actions.transpose(0, 1))
 
-    return augmented_actions, augmented_actions_queue, w
+    return composed_actions, composed_actions_queue, w
 
 # Failure Prediction Fns
 def check_failure_prediction(
@@ -499,7 +499,7 @@ class EpisodeVizTracker:
         self.qam_actions = []
         self.sim_images = []
         self.selected_idx = []
-        self.augmented_flag = []
+        self.composed_flag = []
         self.w_values = []
         self.instructions = []
         self.cp_plot_frames = []
@@ -514,11 +514,11 @@ class EpisodeVizTracker:
         self._arrow_origin = None
         self._w_frozen = None
         self._sel_frozen = 0
-        self._is_augmented_frozen = False
+        self._is_composed_frozen = False
         self._instruction_frozen = ""
 
     def update(self, *, t, n_action_steps, num_steps_wait, predefined_action_queue,
-               global_action_idx, augmented_actions_queue, w, task_description, raw_img,
+               global_action_idx, composed_actions_queue, w, task_description, raw_img,
                use_failure_prediction, cumulative_prob=None, is_failure=None,
                cp_band=None, max_steps=None):
         substep = t % n_action_steps
@@ -538,10 +538,10 @@ class EpisodeVizTracker:
             self._sel_frozen = global_action_idx
             self._qam_frozen = None
             self._arrow_origin = self._inf_eef.copy()
-            # 4. Freeze augmented flag: True when compose mode produced the samples
-            self._is_augmented_frozen = (augmented_actions_queue is not None)
-            # 5a. Freeze per-sample w values (only valid in compose/augmented mode)
-            self._w_frozen = w[:, 0, 0].copy() if (self._is_augmented_frozen and w is not None) else None
+            # 4. Freeze composed flag: True when compose mode produced the samples
+            self._is_composed_frozen = (composed_actions_queue is not None)
+            # 5a. Freeze per-sample w values (only valid in composed mode)
+            self._w_frozen = w[:, 0, 0].copy() if (self._is_composed_frozen and w is not None) else None
             # 5b. Freeze the current instruction text
             self._instruction_frozen = task_description
             # 5. Save for EEF advance at the next inference step
@@ -562,7 +562,7 @@ class EpisodeVizTracker:
         self.vla_actions.append(self._vla_frozen)     # same frozen chunk for all sub-steps
         self.qam_actions.append(self._qam_frozen)
         self.selected_idx.append(self._sel_frozen)
-        self.augmented_flag.append(self._is_augmented_frozen)
+        self.composed_flag.append(self._is_composed_frozen)
         self.w_values.append(self._w_frozen)
         self.instructions.append(self._instruction_frozen)
         self.sim_images.append(raw_img)
@@ -593,7 +593,7 @@ class EpisodeVizTracker:
         Creates an interactive HTML file with a slider to step through frames.
 
         Uses the episode data accumulated on self (states, vla_actions, qam_actions,
-        sim_images, selected_idx, arrow_origins, augmented_flag, w_values, instructions,
+        sim_images, selected_idx, arrow_origins, composed_flag, w_values, instructions,
         cp_plot_frames).
 
         Args:
@@ -612,7 +612,7 @@ class EpisodeVizTracker:
         sim_images = self.sim_images
         selected_indices = self.selected_idx
         arrow_origins = self.arrow_origins
-        augmented_flags = self.augmented_flag
+        composed_flags = self.composed_flag
         w_values = self.w_values
         instructions = self.instructions
         cp_plot_images = self.cp_plot_frames if (use_failure_prediction and len(self.cp_plot_frames) > 0) else None
@@ -763,10 +763,10 @@ class EpisodeVizTracker:
                         if delta_idx < len(critic_vals['vla_values']):
                             critic_values_for_chunk = critic_vals['vla_values'][delta_idx]
 
-                    # Base color: W-gradient (yellow=0 to blue=1) for augmented, blue for normal VLA
-                    is_augmented_frame = (augmented_flags is not None and frame_idx < len(augmented_flags) and augmented_flags[frame_idx])
-                    source_label = 'Augmented' if is_augmented_frame else 'VLA'
-                    if is_augmented_frame and w_values is not None and frame_idx < len(w_values) and w_values[frame_idx] is not None:
+                    # Base color: W-gradient (yellow=0 to blue=1) for composed, blue for normal VLA
+                    is_composed_frame = (composed_flags is not None and frame_idx < len(composed_flags) and composed_flags[frame_idx])
+                    source_label = 'Composed' if is_composed_frame else 'VLA'
+                    if is_composed_frame and w_values is not None and frame_idx < len(w_values) and w_values[frame_idx] is not None:
                         w_arr = w_values[frame_idx]
                         w_val = float(np.clip(w_arr[delta_idx], 0.0, 1.0)) if delta_idx < len(w_arr) else 0.5
                         # yellow (255,255,0) at w=0, blue (0,0,255) at w=1
@@ -775,7 +775,7 @@ class EpisodeVizTracker:
                         b = int(255 * w_val)
                         base_color = f'rgb({r},{g},{b})'
                     else:
-                        base_color = 'blue' if not is_augmented_frame else 'green'
+                        base_color = 'blue' if not is_composed_frame else 'green'
 
                     for h_idx in range(max_vla_horizon):
                         if h_idx < horizon:
@@ -787,9 +787,9 @@ class EpisodeVizTracker:
                                 mode='lines', line=dict(color='black', width=1), opacity=0.5, showlegend=False, hoverinfo='skip'
                             )
                             frame_data.append(trace)
-                            # Build w-value label for augmented samples
+                            # Build w-value label for composed samples
                             w_label = ''
-                            if is_augmented_frame and w_values is not None and frame_idx < len(w_values) and w_values[frame_idx] is not None:
+                            if is_composed_frame and w_values is not None and frame_idx < len(w_values) and w_values[frame_idx] is not None:
                                 w_arr = w_values[frame_idx]
                                 if delta_idx < len(w_arr):
                                     w_label = f'<br>W: {float(w_arr[delta_idx]):.4f}'
