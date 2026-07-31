@@ -61,7 +61,7 @@ bash RL2_CoVer_VLA/env_simpler_pi.sh
 
 #### 1. SAFE Failure Detector ####
 
-Provided directly in the [SAFE submodule](https://github.com/mobile-pi/SAFE/tree/dc226d4b76cccb5377dff021bd595debbe057f52/scripts/batch_training/logs/SAVED) - no download needed.
+Provided directly in the [SAFE submodule](https://github.com/rl2-vla/SAFE/tree/rl2-vla/scripts/batch_training/logs/SAVED) - no download needed.
 However, we strongly encourage you to [retrain the SAFE model](#training) with rollouts collected on your compute platform for better performance.
 
 
@@ -137,7 +137,7 @@ bash RL2_CoVer_VLA/simpler/bashes/collect_rollouts_for_safe_training.sh
 python RL2_CoVer_VLA/simpler/bashes/restructure_rollouts_for_safe.py     
 ```
 
-b) **Train the detector** using the guide in the [SAFE README](https://github.com/mobile-pi/SAFE). Thereafter, update the evaluation bash scripts with the paths to the new SAFE checkpoint, CP bands, and alpha selection heuristic json files.
+b) **Train the detector** using the guide in the [SAFE README](https://github.com/rl2-vla/SAFE). Thereafter, update the evaluation bash scripts with the paths to the new SAFE checkpoint, CP bands, and alpha selection heuristic json files.
 
 
 ### Train QAM RL Steering Policy
@@ -149,7 +149,7 @@ a) **Augment BridgeV2 Dataset** with VLA latents
 python RL2_CoVer_VLA/simpler/extract_hidden_states_and_actions.py
 ```
 
-b) **Train QAM** using the guide in the [QAM README](https://github.com/mobile-pi/QAM). Thereafter, update the evaluation bash scripts with the path to the new QAM checkpoint.
+b) **Train QAM** using the guide in the [QAM README](https://github.com/rl2-vla/QAM). Thereafter, update the evaluation bash scripts with the path to the new QAM checkpoint.
 
 
 
