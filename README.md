@@ -144,12 +144,15 @@ b) **Train the detector** using the guide in the [SAFE README](https://github.co
 
 You may download the pretrained QAM steering policy [from above](#download-pretrained-checkpoints). Alternatively, you may follow the steps below to train your own steering policy.
 
-a) **Augment BridgeV2 Dataset** with VLA latents
+a) **Download BridgeV2 dataset** by following [these instructions](https://github.com/kpertsch/rlds_dataset_mod/blob/main/prepare_open_x.sh). You should download the `1.0.0` version.
+
+
+b) **Augment BridgeV2 Dataset** with VLA latents
 ```bash
 python RL2_CoVer_VLA/simpler/extract_hidden_states_and_actions.py
 ```
 
-b) **Train QAM** using the guide in the [QAM README](https://github.com/rl2-vla/QAM). Thereafter, update the evaluation bash scripts with the path to the new QAM checkpoint.
+c) **Train QAM** using the guide in the [QAM README](https://github.com/rl2-vla/QAM). Thereafter, update the evaluation bash scripts with the path to the new QAM checkpoint.
 
 
 
