@@ -127,32 +127,31 @@ python RL2_CoVer_VLA/simpler/bashes/summarize_logs.py --logs_dir <PATH>
 
 You are strongly encouraged to retrain SAFE with rollouts collected on your compute platform.
 
-a) **Collect rollouts** for SAFE training:
+1. **Collect rollouts** for SAFE training:
+    ```bash
+    # rollout collection
+    bash RL2_CoVer_VLA/simpler/bashes/collect_rollouts_for_safe_training.sh  
 
-```bash
-# rollout collection
-bash RL2_CoVer_VLA/simpler/bashes/collect_rollouts_for_safe_training.sh  
+    # restructure dataset
+    python RL2_CoVer_VLA/simpler/bashes/restructure_rollouts_for_safe.py     
+    ```
 
-# restructure dataset
-python RL2_CoVer_VLA/simpler/bashes/restructure_rollouts_for_safe.py     
-```
-
-b) **Train the detector** using the guide in the [SAFE README](https://github.com/rl2-vla/SAFE). Thereafter, update the evaluation bash scripts with the paths to the new SAFE checkpoint, CP bands, and alpha selection heuristic json files.
+2. **Train the detector** using the guide in the [SAFE README](https://github.com/rl2-vla/SAFE). Thereafter, update the evaluation bash scripts with the paths to the new SAFE checkpoint, CP bands, and alpha selection heuristic json files.
 
 
 ### Train QAM RL Steering Policy
 
 You may download the pretrained QAM steering policy [from above](#download-pretrained-checkpoints). Alternatively, you may follow the steps below to train your own steering policy.
 
-a) **Download BridgeV2 dataset** by following [these instructions](https://github.com/kpertsch/rlds_dataset_mod/blob/main/prepare_open_x.sh). You should download the `1.0.0` version.
+1. **Download BridgeV2 dataset** by following [these instructions](https://github.com/kpertsch/rlds_dataset_mod/blob/main/prepare_open_x.sh). You should download the `1.0.0` version.
 
 
-b) **Augment BridgeV2 Dataset** with VLA latents
-```bash
-python RL2_CoVer_VLA/simpler/extract_hidden_states_and_actions.py
-```
+2. **Augment BridgeV2 Dataset** with VLA latents:
+    ```bash
+    python RL2_CoVer_VLA/simpler/extract_hidden_states_and_actions.py
+    ```
 
-c) **Train QAM** using the guide in the [QAM README](https://github.com/rl2-vla/QAM). Thereafter, update the evaluation bash scripts with the path to the new QAM checkpoint.
+3. **Train QAM** using the guide in the [QAM README](https://github.com/rl2-vla/QAM). Thereafter, update the evaluation bash scripts with the path to the new QAM checkpoint.
 
 
 
