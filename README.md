@@ -2,7 +2,7 @@
 <p align="center">
   <a href="https://rl2-vla.github.io"><img src="https://img.shields.io/badge/Visit-Website-0066FF?style=for-the-badge&logo=google-chrome" alt="Website"/></a>
   &emsp;&emsp;
-  <a href="https://arxiv.org/pdf/2607.26991"><img src="https://img.shields.io/badge/arXiv-Paper-df2a2a?style=for-the-badge&logo=arxiv&logoColor=white" alt="arXiv"/></a>
+  <a href="https://arxiv.org/abs/2607.26991"><img src="https://img.shields.io/badge/arXiv-Paper-df2a2a?style=for-the-badge&logo=arxiv&logoColor=white" alt="arXiv"/></a>
   &emsp;&emsp;
   <a href="https://huggingface.co/rl2-vla"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF-Models-FFD700?style=for-the-badge" alt="Models"/></a>
   &emsp;&emsp;
