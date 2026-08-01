@@ -11,6 +11,7 @@ SEEDS=(42 0 7)
 NUM_TRIALS_PER_TASK=50
 
 # Action sampling for all states
+# 1x action sample for latents extraction
 LANG_REPHRASE_NUM_PREFAIL=8
 ACTION_SAMPLES_PREFAIL=1
 COMPOSED_SAMPLES_PREFAIL=5

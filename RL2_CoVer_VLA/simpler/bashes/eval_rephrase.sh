@@ -89,13 +89,13 @@ for seed in "${SEEDS[@]}"; do
     #         --pretrained_checkpoint "$PRETRAINED_CHECKPOINT" \
     #         --num_trials_per_task "$NUM_TRIALS_PER_TASK" \
     #         --use_failure_prediction False \
-    #         --use_taskwise_cp_band True \
     #         --lang_rephrase_num_prefail 1 \
     #         --action_samples_prefail 1 \
     #         --composed_samples_prefail 0 \
     #         --use_verifier True \
     #         --critic cover \
     #         --seed "$seed" \
+    #         --local_log_dir "$LOCAL_LOG_DIR" \
     #         --wandb_project Vanilla
     # done
 done

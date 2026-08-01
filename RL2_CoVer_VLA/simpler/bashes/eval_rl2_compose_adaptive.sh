@@ -17,6 +17,7 @@ ACTION_SAMPLES_PREFAIL=5
 COMPOSED_SAMPLES_PREFAIL=0
 
 # Action sampling for failure states
+# 1x action sample for latents extraction
 LANG_REPHRASE_NUM=8
 ACTION_SAMPLES=1
 COMPOSED_SAMPLES=5
