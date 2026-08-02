@@ -16,7 +16,7 @@ ACTION_SAMPLES_PREFAIL=5
 COMPOSED_SAMPLES_PREFAIL=0
 
 # Log Directory
-LOCAL_LOG_DIR="./experiments"
+LOCAL_LOG_DIR="./safe_rollouts"
 # LOCAL_LOG_DIR="/mnt/hdd/SAFE_ds/training_latents/rollouts"
 
 # ==========================================================================

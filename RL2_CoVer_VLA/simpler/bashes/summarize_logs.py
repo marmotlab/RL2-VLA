@@ -153,6 +153,63 @@ def main():
         print_group(seed, "IID", IID_TASKS)
         print_group(seed, "OOD", OOD_TASKS)
 
+    # Average across seeds
+    def numeric_avg_across_seeds(task, method):
+        if (task, method) not in expected:
+            return None, "-"
+        vals = [numeric(seed, task, method) for seed in seeds]
+        if any(v is None for v in vals):
+            # If at least one seed is missing this cell (XX)
+            return None, "XX"
+        avg = sum(vals) / len(vals)
+        return avg, f"{avg:.1f}"
+
+    def print_avg_group(title, tasks):
+        headers = ["Task"] + [METHOD_LABEL.get(m, m) for m in METHOD_ORDER]
+        rows = []
+        for task in tasks:
+            row = [pretty_task(task)]
+            for m in METHOD_ORDER:
+                _, disp = numeric_avg_across_seeds(task, m)
+                row.append(disp)
+            rows.append(row)
+
+        avg_row = ["Average"]
+        for m in METHOD_ORDER:
+            vals = []
+            applicable = False
+            for task in tasks:
+                if (task, m) in expected:
+                    applicable = True
+                    v, _ = numeric_avg_across_seeds(task, m)
+                    if v is not None:
+                        vals.append(v)
+            if not applicable:
+                avg_row.append("-")
+            elif not vals:
+                avg_row.append("XX")
+            else:
+                avg_row.append(f"{sum(vals) / len(vals):.1f}")
+        rows.append(avg_row)
+
+        widths = [max(len(headers[i]), *(len(r[i]) for r in rows)) for i in range(len(headers))]
+        print(f"--- {title} ---")
+        print("  ".join(h.ljust(widths[i]) for i, h in enumerate(headers)))
+        print("  ".join("-" * w for w in widths))
+        for i, row in enumerate(rows):
+            if row[0] == "Average":
+                print("  ".join("-" * w for w in widths))
+            print("  ".join(c.ljust(widths[i]) for i, c in enumerate(row)))
+        print()
+
+    if seeds:
+        print("=" * 60)
+        print(f"AVG: Seed {', '.join(seeds)}")
+        print("=" * 60)
+        print()
+        print_avg_group("IID", IID_TASKS)
+        print_avg_group("OOD", OOD_TASKS)
+
 
 if __name__ == "__main__":
     main()

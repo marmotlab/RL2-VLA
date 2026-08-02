@@ -20,10 +20,8 @@ import shutil
 import time
 from pathlib import Path
 
-# SRC = Path("/mnt/hdd/SAFE_ds/training_latents/rollouts/")
-# DST = Path("/mnt/hdd/SAFE_ds/training_latents/")
-SRC = Path("experiments/")
-DST = Path("experiments/restructured_safe")
+SRC = Path("RL2_CoVer_VLA/simpler/bashes/safe_rollouts/")
+DST = Path("RL2_CoVer_VLA/simpler/bashes/restructured_safe_rollouts/")
 TOP_FOLDER = f"rl2_vla_collected_rollouts_{time.strftime('%Y%m%d')}"
 
 SEED_RE = re.compile(r"SEED-(\d+)_")
