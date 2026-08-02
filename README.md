@@ -69,7 +69,7 @@ However, we strongly encourage you to [retrain the SAFE model](#training) with r
 
 ```bash
 cd third_party/qam/exp/SAVED/rl2-vla-qam-bridge/
-huggingface-cli download rl2-vla/rl2-vla-qam-bridge rl2_vla_qam_bridge_500k.pkl flags.json --local-dir .
+hf download rl2-vla/rl2-vla-qam-bridge rl2_vla_qam_bridge_500k.pkl flags.json --local-dir .
 cd -
 ```
 
@@ -77,7 +77,7 @@ cd -
 
 ```bash
 cd bridge_verifier
-huggingface-cli download cover-vla/cover-vla-bridge cover_verifier_bridge.pt --local-dir .
+hf download cover-vla/cover-vla-bridge cover_verifier_bridge.pt --local-dir .
 cd ..
 ```
 
